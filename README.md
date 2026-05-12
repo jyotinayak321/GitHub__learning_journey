@@ -8,6 +8,7 @@
 
 ---
 #INSTALLATION GUIDE
+
 ##Before You Start with Git & GitHub 🚀
 
 Before starting your Git & GitHub journey, you need to install Git and set up your environment properly. Git helps you manage files, track changes, and connect your projects with GitHub for version control and collaboration.
