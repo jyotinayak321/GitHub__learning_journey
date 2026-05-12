@@ -3,4 +3,4 @@
 
 ##Contents
 
--[class 1-Git kya hota hai?](Git_Class1_Interactive_Notes.pdf)
+-[class 1]-Git kya hota hai?(Git_Class1_Interactive_Notes.pdf)
