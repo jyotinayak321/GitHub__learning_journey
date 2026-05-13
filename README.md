@@ -4,6 +4,7 @@
 # Contents
 
 -[class 1](Git_Class1_Interactive_Notes.pdf)-Git kya hota hai?
+-[class 2](class2)-Branching & Merging?
 
 
 ---
