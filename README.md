@@ -7,7 +7,7 @@
 
 -[class 2](class2.md)-Branching & Merging?
 
--class 3](class3.md)-Taking code Online
+-[class 3](class3.md)-Taking code Online
 
 
 ---
