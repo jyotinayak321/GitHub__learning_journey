@@ -11,6 +11,8 @@
 
 ## **-[class 4](class4.md)-Pull Requests & Real Team Collaboration**
 
+## **-[class 5](class5.md)- Rebase, Reset, Cherry-pick, Tags & Reflog**
+
 
 ---
 
