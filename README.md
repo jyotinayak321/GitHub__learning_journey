@@ -15,7 +15,7 @@
 
 ## **-[class 5extended](class5(extended).md)-Leftout topics of class 5**
 
-
+## **[class 6](class6.md)-GitHub Actions and CI/CD**
 ---
 
 
