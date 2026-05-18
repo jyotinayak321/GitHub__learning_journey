@@ -13,9 +13,11 @@
 
 ## **-[class 5](class5.md)- Rebase, Reset, Cherry-pick, Tags & Reflog**
 
-## **-[class 5extended](class5(extended).md)-Leftout topics of class 5**
+## **-[class 5extended](class5(extended).md)-ADVANCE TOPIC OF Rebase, Reset, Cherry-pick, Tags & Reflog**
 
 ## **[class 6](class6.md)-GitHub Actions and CI/CD**
+
+## **-[class 6 Advance Topic](class6adv.md)-ADVANCED CI?CD WORKFLOW**
 ---
 
 
