@@ -1,20 +1,24 @@
-PART 1 — Multiple Jobs: Parallel vs Sequential
-What is the difference?
-By default, jobs run in parallel — at the same time, on different machines.
-But sometimes you want them to run one after another — like tests must pass before deploy runs.
-
-<img width="1472" height="680" alt="image" src="https://github.com/user-attachments/assets/6f6a1f35-99e6-476e-8bbc-1ef2617ace89" />
 
 
-  ::view-transition-group(*),
-  ::view-transition-old(*),
-  ::view-transition-new(*) {
-    animation-duration: 0.25s;
-    animation-timing-function: cubic-bezier(0.19, 1, 0.22, 1);
-  }
-VvisualizeVvisualize show_widgetPractical — Multiple Jobs in YAML
-Parallel jobs — no dependency:
-yamljobs:
+# CLASS 6 — ADVANCED CI/CD WORKFLOW
+<img width="1472" height="680" alt="image" src="https://github.com/user-attachments/assets/279e3c7e-6905-4b73-8606-b29115d1c715" />
+
+---
+
+# PART 1 — Multiple Jobs: Parallel vs Sequential
+
+## What is the difference?
+
+By default, jobs run **in parallel** — at the same time, on different machines.
+
+But sometimes you want them to run **one after another** — like tests must pass before deploy runs.
+
+---### Practical — Multiple Jobs in YAML
+
+**Parallel jobs — no dependency:**
+
+```yaml
+jobs:
   lint:
     runs-on: ubuntu-latest
     steps:
@@ -34,9 +38,14 @@ yamljobs:
     steps:
       - uses: actions/checkout@v3
       - run: docker build -t my-app .
+```
+
 All three start at the same time — saves time!
-Sequential jobs — using needs:
-yamljobs:
+
+**Sequential jobs — using `needs`:**
+
+```yaml
+jobs:
   test:
     runs-on: ubuntu-latest
     steps:
@@ -55,14 +64,24 @@ yamljobs:
     needs: build         # only runs if build passes
     steps:
       - run: echo "Deploying to production!"
+```
 
-PART 2 — Matrix Builds
-What is it?
-Test your code on multiple Python versions or operating systems — all at the same time!
+---
+
+# PART 2 — Matrix Builds
+
+## What is it?
+
+Test your code on **multiple Python versions or operating systems** — all at the same time!
+
 Very useful because your users may use Python 3.9, 3.10, or 3.11 — you want to make sure your app works on all of them.
 
-Practical — Matrix Strategy
-yamljobs:
+---
+
+### Practical — Matrix Strategy
+
+```yaml
+jobs:
   test:
     runs-on: ubuntu-latest
 
@@ -80,48 +99,71 @@ yamljobs:
 
       - run: pip install -r requirements.txt
       - run: pytest
-What happens:
-GitHub creates 3 separate machines and runs the job on each:
+```
 
-Machine 1 → Python 3.9
-Machine 2 → Python 3.10
-Machine 3 → Python 3.11
+**What happens:**
+
+GitHub creates **3 separate machines** and runs the job on each:
+- Machine 1 → Python 3.9
+- Machine 2 → Python 3.10
+- Machine 3 → Python 3.11
 
 All run at the same time! You get 3 results in your Actions tab.
-Matrix with multiple dimensions — OS and Python:
-yaml    strategy:
+
+**Matrix with multiple dimensions — OS and Python:**
+
+```yaml
+    strategy:
       matrix:
         os: [ubuntu-latest, windows-latest]
         python-version: ["3.10", "3.11"]
-This creates 4 combinations:
+```
 
-Ubuntu + Python 3.10
-Ubuntu + Python 3.11
-Windows + Python 3.10
-Windows + Python 3.11
+This creates **4 combinations:**
+- Ubuntu + Python 3.10
+- Ubuntu + Python 3.11
+- Windows + Python 3.10
+- Windows + Python 3.11
 
-Exclude a specific combination:
-yaml    strategy:
+**Exclude a specific combination:**
+
+```yaml
+    strategy:
       matrix:
         os: [ubuntu-latest, windows-latest]
         python-version: ["3.10", "3.11"]
         exclude:
           - os: windows-latest
             python-version: "3.10"
-Continue even if one matrix job fails:
-yaml    strategy:
+```
+
+**Continue even if one matrix job fails:**
+
+```yaml
+    strategy:
       fail-fast: false    # don't cancel others if one fails
       matrix:
         python-version: ["3.9", "3.10", "3.11"]
+```
 
-PART 3 — Caching: Speed Up Your Workflows
-What is it?
+---
+
+# PART 3 — Caching: Speed Up Your Workflows
+
+## What is it?
+
 Every time your workflow runs — it downloads and installs all packages from scratch.
-Installing 50 packages takes 2-3 minutes every single run.
-Caching saves the downloaded packages — so next time, installation takes 10 seconds instead of 3 minutes!
 
-Practical — Cache pip packages
-yaml    steps:
+Installing 50 packages takes 2-3 minutes every single run.
+
+**Caching saves the downloaded packages** — so next time, installation takes 10 seconds instead of 3 minutes!
+
+---
+
+### Practical — Cache pip packages
+
+```yaml
+    steps:
       - uses: actions/checkout@v3
 
       - uses: actions/setup-python@v4
@@ -138,28 +180,51 @@ yaml    steps:
 
       - name: Install dependencies
         run: pip install -r requirements.txt
-How the key works:
-key: ubuntu-pip-abc123def456
-Where abc123def456 = hash of your requirements.txt file.
-If requirements.txt changes → hash changes → new key → fresh install.
-If requirements.txt did not change → same key → uses cached packages → super fast!
-Cache for Node.js (if you have React frontend):
-yaml      - name: Cache node modules
+```
+
+**How the key works:**
+
+`key: ubuntu-pip-abc123def456`
+
+Where `abc123def456` = hash of your `requirements.txt` file.
+
+If `requirements.txt` changes → hash changes → new key → fresh install.
+
+If `requirements.txt` did not change → same key → uses cached packages → super fast!
+
+**Cache for Node.js (if you have React frontend):**
+
+```yaml
+      - name: Cache node modules
         uses: actions/cache@v3
         with:
           path: ~/.npm
           key: ${{ runner.os }}-node-${{ hashFiles('package-lock.json') }}
+```
 
-PART 4 — More Triggers: Schedule and Manual
-You already know push and pull_request.
+---
+
+# PART 4 — More Triggers: Schedule and Manual
+
+## You already know push and pull_request.
+
 Now learn the other two important triggers:
 
-Trigger 1 — Schedule (Cron)
+---
+
+### Trigger 1 — Schedule (Cron)
+
 Run your workflow automatically at a specific time — like a cron job.
-yamlon:
+
+```yaml
+on:
   schedule:
     - cron: "0 9 * * 1-5"    # 9 AM every weekday
-How to read cron format:
+```
+
+**How to read cron format:**
+
+```
 ┌─── minute (0-59)
 │  ┌── hour (0-23)
 │  │  ┌─ day of month (1-31)
@@ -167,13 +232,21 @@ How to read cron format:
 │  │  │  │  ┌ day of week (0=Sun, 1=Mon...5=Fri)
 │  │  │  │  │
 0  9  *  *  1-5
-Common examples:
-yaml- cron: "0 0 * * *"       # midnight every day
+```
+
+**Common examples:**
+
+```yaml
+- cron: "0 0 * * *"       # midnight every day
 - cron: "0 9 * * 1"       # 9 AM every Monday
 - cron: "*/30 * * * *"    # every 30 minutes
 - cron: "0 0 1 * *"       # midnight on 1st of every month
-Real use case for your AI Career Mentor:
-yamlon:
+```
+
+**Real use case for your AI Career Mentor:**
+
+```yaml
+on:
   schedule:
     - cron: "0 2 * * *"    # 2 AM daily
 
@@ -183,11 +256,18 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - run: python scripts/refresh_jobs.py
+```
+
 This automatically refreshes job listings every night at 2 AM — without you doing anything!
 
-Trigger 2 — Workflow Dispatch (Manual)
+---
+
+### Trigger 2 — Workflow Dispatch (Manual)
+
 Run your workflow manually with a button click on GitHub — useful for deployments you want to control.
-yamlon:
+
+```yaml
+on:
   workflow_dispatch:
     inputs:
       environment:
@@ -202,20 +282,40 @@ yamlon:
         description: "Enable debug mode?"
         type: boolean
         default: false
-Now go to GitHub → Actions tab → your workflow → "Run workflow" button appears!
+```
+
+Now go to GitHub → Actions tab → your workflow → **"Run workflow"** button appears!
+
 You click it, choose environment, click Run — and the workflow starts manually.
-Use the inputs inside the workflow:
-yaml      - name: Deploy
+
+**Use the inputs inside the workflow:**
+
+```yaml
+      - name: Deploy
         run: |
           echo "Deploying to: ${{ inputs.environment }}"
           echo "Debug mode: ${{ inputs.debug_mode }}"
+```
 
-PART 5 — Environment Variables vs Secrets
-People confuse these — learn the difference clearly.
-Environment VariablesSecretsVisible in logs?YesNo — always hiddenSensitive data?NoYesExampleAPP_ENV=productionGROQ_API_KEY=gsk_...Where to setworkflow file directlyGitHub Settings → Secrets
+---
 
-Practical — Using Both Together
-yamljobs:
+# PART 5 — Environment Variables vs Secrets
+
+## People confuse these — learn the difference clearly.
+
+| | Environment Variables | Secrets |
+|---|---|---|
+| Visible in logs? | Yes | No — always hidden |
+| Sensitive data? | No | Yes |
+| Example | `APP_ENV=production` | `GROQ_API_KEY=gsk_...` |
+| Where to set | workflow file directly | GitHub Settings → Secrets |
+
+---
+
+### Practical — Using Both Together
+
+```yaml
+jobs:
   deploy:
     runs-on: ubuntu-latest
 
@@ -236,8 +336,12 @@ yamljobs:
           echo "App: $APP_NAME"
           echo "Env: $APP_ENV"
           python app/main.py
-Three levels of env variables:
-yamlenv:
+```
+
+**Three levels of env variables:**
+
+```yaml
+env:
   GLOBAL_VAR: "applies to ALL jobs"    # at top level
 
 jobs:
@@ -250,14 +354,24 @@ jobs:
         env:
           STEP_VAR: "only this step"   # at step level
         run: echo $STEP_VAR
+```
 
-PART 6 — Artifacts: Save and Share Files Between Jobs
-What is an artifact?
+---
+
+# PART 6 — Artifacts: Save and Share Files Between Jobs
+
+## What is an artifact?
+
 An artifact is a file your workflow produces — like a test report, a built app, a coverage report — that you want to save or share between jobs.
 
-Practical — Upload and Download Artifacts
-Job 1 — produce a file and upload it:
-yaml  test:
+---
+
+### Practical — Upload and Download Artifacts
+
+**Job 1 — produce a file and upload it:**
+
+```yaml
+  test:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -272,8 +386,12 @@ yaml  test:
           name: coverage-report
           path: htmlcov/
           retention-days: 7
-Job 2 — download that file and use it:
-yaml  deploy:
+```
+
+**Job 2 — download that file and use it:**
+
+```yaml
+  deploy:
     needs: test
     runs-on: ubuntu-latest
     steps:
@@ -284,23 +402,35 @@ yaml  deploy:
 
       - name: Show coverage files
         run: ls -la
-Real use cases for artifacts:
+```
 
-Test coverage HTML reports — download and read them
-Built React app files — share between build and deploy jobs
-Log files from a failed run — download to debug
-Generated PDFs or reports
+**Real use cases for artifacts:**
 
+- Test coverage HTML reports — download and read them
+- Built React app files — share between build and deploy jobs
+- Log files from a failed run — download to debug
+- Generated PDFs or reports
 
-PART 7 — Reusable Workflows
-What is it?
+---
+
+# PART 7 — Reusable Workflows
+
+## What is it?
+
 If you have 5 different projects — and all need the same test setup — you do not copy the YAML 5 times.
-You create one reusable workflow and call it from all 5 projects.
 
-Practical — Create a Reusable Workflow
-Step 1 — Create the reusable workflow:
-In .github/workflows/reusable-test.yml:
-yamlname: Reusable test workflow
+You create **one reusable workflow** and call it from all 5 projects.
+
+---
+
+### Practical — Create a Reusable Workflow
+
+**Step 1 — Create the reusable workflow:**
+
+In `.github/workflows/reusable-test.yml`:
+
+```yaml
+name: Reusable test workflow
 
 on:
   workflow_call:               # this makes it reusable!
@@ -324,9 +454,14 @@ jobs:
       - run: pytest
         env:
           GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
-Step 2 — Call it from another workflow:
-In .github/workflows/ci.yml:
-yamlname: CI
+```
+
+**Step 2 — Call it from another workflow:**
+
+In `.github/workflows/ci.yml`:
+
+```yaml
+name: CI
 
 on: [push]
 
@@ -337,12 +472,20 @@ jobs:
       python-version: "3.11"
     secrets:
       GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
+```
+
 One workflow defined once — used everywhere!
 
-PART 8 — Complete Production Workflow
-Full real-world CI/CD for your AI Career Mentor project
-Copy this complete file into .github/workflows/ci-cd.yml:
-yamlname: CI/CD — AI Career Mentor
+---
+
+# PART 8 — Complete Production Workflow
+
+## Full real-world CI/CD for your AI Career Mentor project
+
+Copy this complete file into `.github/workflows/ci-cd.yml`:
+
+```yaml
+name: CI/CD — AI Career Mentor
 
 on:
   push:
@@ -436,37 +579,69 @@ jobs:
           echo "Deployment complete!"
           echo "App: $APP_NAME"
           echo "Time: $(date)"
+```
+
 This single file gives you:
+- Code quality check on every push
+- Tests on Python 3.10 and 3.11 simultaneously
+- Coverage reports saved as artifacts
+- Auto-deploy to Render only when main branch tests pass
+- Nightly health check at 2 AM
+- Manual deploy button when needed
 
-Code quality check on every push
-Tests on Python 3.10 and 3.11 simultaneously
-Coverage reports saved as artifacts
-Auto-deploy to Render only when main branch tests pass
-Nightly health check at 2 AM
-Manual deploy button when needed
+---
 
+## 🧠 Complete Revision — Class 6 Full
 
-🧠 Complete Revision — Class 6 Full
-TopicKey pointParallel jobsNo needs — all start together — fasterSequential jobsneeds: jobname — waits for previousMatrix buildsTest multiple versions simultaneouslyfail-fast: falseDo not cancel others if one matrix failsCachingactions/cache@v3 — saves install timeCache keyBased on file hash — auto-refreshes when deps changeSchedule triggerCron syntax — run at specific timeManual triggerworkflow_dispatch — button on GitHubEnv variablesNon-sensitive — write directly in YAMLSecretsSensitive — store in GitHub SettingsArtifactsupload-artifact / download-artifact — share filesReusable workflowworkflow_call — define once, use everywhere
+| Topic | Key point |
+|---|---|
+| Parallel jobs | No `needs` — all start together — faster |
+| Sequential jobs | `needs: jobname` — waits for previous |
+| Matrix builds | Test multiple versions simultaneously |
+| `fail-fast: false` | Do not cancel others if one matrix fails |
+| Caching | `actions/cache@v3` — saves install time |
+| Cache key | Based on file hash — auto-refreshes when deps change |
+| Schedule trigger | Cron syntax — run at specific time |
+| Manual trigger | `workflow_dispatch` — button on GitHub |
+| Env variables | Non-sensitive — write directly in YAML |
+| Secrets | Sensitive — store in GitHub Settings |
+| Artifacts | `upload-artifact` / `download-artifact` — share files |
+| Reusable workflow | `workflow_call` — define once, use everywhere |
 
-💡 Interview Questions — With Answers
-Q: How do you speed up a GitHub Actions workflow?
+---
+
+## 💡 Interview Questions — With Answers
+
+**Q: How do you speed up a GitHub Actions workflow?**
+
 Three ways — use caching to avoid reinstalling packages every time, run independent jobs in parallel, and use matrix builds wisely so you are not running redundant combinations.
-Q: What is the difference between environment variables and secrets in GitHub Actions?
-Environment variables are for non-sensitive configuration like app name or port number — they appear in logs. Secrets are for sensitive values like API keys and passwords — they are encrypted and never shown in logs even if you try to print them.
-Q: How do you prevent the deploy job from running when tests fail?
-Use needs: test on the deploy job. This creates a dependency — deploy only runs if test completed successfully. If test fails, deploy is automatically skipped.
-Q: What are artifacts in GitHub Actions?
-Artifacts are files produced during a workflow run — like test coverage reports, built application files, or log files. You upload them with actions/upload-artifact and download them with actions/download-artifact. They are stored for a set number of days.
 
-🎯 Final Practice Task — Complete Class 6
+**Q: What is the difference between environment variables and secrets in GitHub Actions?**
+
+Environment variables are for non-sensitive configuration like app name or port number — they appear in logs. Secrets are for sensitive values like API keys and passwords — they are encrypted and never shown in logs even if you try to print them.
+
+**Q: How do you prevent the deploy job from running when tests fail?**
+
+Use `needs: test` on the deploy job. This creates a dependency — deploy only runs if test completed successfully. If test fails, deploy is automatically skipped.
+
+**Q: What are artifacts in GitHub Actions?**
+
+Artifacts are files produced during a workflow run — like test coverage reports, built application files, or log files. You upload them with `actions/upload-artifact` and download them with `actions/download-artifact`. They are stored for a set number of days.
+
+---
+
+## 🎯 Final Practice Task — Complete Class 6
+
 Do all of this on your AI Career Mentor project:
 
-Add a lint job using flake8 that runs before tests
-Add matrix builds for Python 3.10 and 3.11
-Add caching for pip packages
-Add a scheduled run at midnight using cron
-Add workflow_dispatch with an environment input
-Upload test coverage as an artifact — download it from Actions tab
-Make sure deploy only runs on main branch pushes
-Push everything → go to Actions tab → verify all jobs pass ✅
+1. Add a `lint` job using `flake8` that runs before tests
+2. Add matrix builds for Python 3.10 and 3.11
+3. Add caching for pip packages
+4. Add a scheduled run at midnight using cron
+5. Add `workflow_dispatch` with an environment input
+6. Upload test coverage as an artifact — download it from Actions tab
+7. Make sure deploy only runs on `main` branch pushes
+8. Push everything → go to Actions tab → verify all jobs pass ✅
+
+---
+
