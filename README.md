@@ -18,6 +18,8 @@
 ## **[class 6](class6.md)-GitHub Actions and CI/CD**
 
 ## **-[class 6 Advance Topic](class6adv.md)-ADVANCED CI?CD WORKFLOW**
+
+## **-[class 7](class7.md)- Git Internals & Pro Tools**
 ---
 
 
