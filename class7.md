@@ -31,7 +31,8 @@ Git has exactly **4 types of objects.** Everything in Git is one of these four:
 <img width="1472" height="760" alt="image" src="https://github.com/user-attachments/assets/e40306a5-ef04-4ce9-8f7f-bd0f26e1644a" />
 
 
----### The 4 Object Types — Simple English
+---
+### The 4 Object Types — Simple English
 
 **1. Blob — file content storage**
 
@@ -209,7 +210,8 @@ Checking one by one = hours of work.
 
 <img width="1472" height="608" alt="image" src="https://github.com/user-attachments/assets/a45208b0-40eb-46d3-b31b-fd2198564225" />
 
----### Practical — Use git bisect
+---
+### Practical — Use git bisect
 
 ```bash
 cd Desktop/git-practice
@@ -360,7 +362,8 @@ Think of them like event listeners — "when this event happens, run this script
 <img width="1472" height="640" alt="image" src="https://github.com/user-attachments/assets/7e51fccf-cfe1-42b9-bed4-46390b266204" />
 
 
----### Practical — Create Your First Hook
+---### 
+Practical — Create Your First Hook
 
 Hooks live in `.git/hooks/` folder.
 
